@@ -3,6 +3,7 @@ package com.deppatori.mellong.service;
 import com.deppatori.mellong.model.User;
 import com.deppatori.mellong.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -10,6 +11,9 @@ import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -26,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-        return userRepository.save(user);
+        return saveUserToDatabase(user);
     }
 
     @Override
@@ -34,9 +38,14 @@ public class UserServiceImpl implements UserService {
         User found = userRepository.findById(id).orElse(null);
         if(user != null){
             user.setId(found.getId());
-            return userRepository.save(user);
+            return saveUserToDatabase(user);
         }
         return null;
+    }
+
+    private User saveUserToDatabase(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     @Override
