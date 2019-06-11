@@ -1,8 +1,10 @@
 package com.deppatori.mellong.configuration;
 
+import com.deppatori.mellong.security.jwt.JwtParams;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,12 +20,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+
+
     private final AuthenticationManager authenticationManager;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
 
-        setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
+    //    setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
     }
 
     @Override
