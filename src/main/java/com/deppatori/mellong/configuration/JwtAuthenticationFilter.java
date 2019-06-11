@@ -4,6 +4,7 @@ import com.deppatori.mellong.security.jwt.JwtParams;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +65,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .claim("rol", roles)
                 .compact();
 
-        response.addHeader(jwtParams.getTokenHeader(), jwtParams.getTokenPrefix() + token);
+       // response.addHeader(jwtParams.getTokenHeader(), jwtParams.getTokenPrefix() + token);
+        try{
+            JSONObject obj = new JSONObject();
+            obj.put("token", token);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().print(obj);
+            response.getWriter().flush();
+
+        }catch (IOException ioException){
+            ioException.printStackTrace();
+        }
+
     }
 
     public void setJwtParams(JwtParams jwtParams) {

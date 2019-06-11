@@ -55,7 +55,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
                 Jws<Claims> parsedToken = Jwts.parser()
                         .setSigningKey(signingKey)
-                        .parseClaimsJws(token.replace("Bearer ", ""));
+                        .parseClaimsJws(token.replace(jwtParams.getTokenPrefix(), ""));
 
                 String username = parsedToken
                         .getBody()
