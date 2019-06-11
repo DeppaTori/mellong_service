@@ -4,7 +4,6 @@ import com.deppatori.mellong.security.jwt.JwtParams;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +20,8 @@ import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+
+    private JwtParams jwtParams;
 
 
     private final AuthenticationManager authenticationManager;
@@ -50,18 +51,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
+        byte[] signingKey = jwtParams.getSecret().getBytes();
 
         String token = Jwts.builder()
                 .signWith(Keys.hmacShaKeyFor(signingKey), SignatureAlgorithm.HS512)
-                .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
-                .setIssuer(SecurityConstants.TOKEN_ISSUER)
-                .setAudience(SecurityConstants.TOKEN_AUDIENCE)
+                .setHeaderParam("typ", jwtParams.getTokenType())
+                .setIssuer(jwtParams.getTokenIssuer())
+                .setAudience(jwtParams.getTokenAudience())
                 .setSubject(user.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + 864000000))
                 .claim("rol", roles)
                 .compact();
 
-        response.addHeader(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + token);
+        response.addHeader(jwtParams.getTokenHeader(), jwtParams.getTokenPrefix() + token);
+    }
+
+    public void setJwtParams(JwtParams jwtParams) {
+        this.jwtParams = jwtParams;
     }
 }

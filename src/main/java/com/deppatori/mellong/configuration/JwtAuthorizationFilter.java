@@ -1,8 +1,10 @@
 package com.deppatori.mellong.configuration;
 
+import com.deppatori.mellong.security.jwt.JwtParams;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +22,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+
+
+    private JwtParams jwtParams;
+
     private static final Logger log = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
@@ -30,9 +36,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-        String header = request.getHeader(SecurityConstants.TOKEN_HEADER);
+        String header = request.getHeader(jwtParams.getTokenHeader());
 
-        if (StringUtils.isEmpty(header) || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+        if (StringUtils.isEmpty(header) || !header.startsWith(jwtParams.getTokenPrefix())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -42,10 +48,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(SecurityConstants.TOKEN_HEADER);
+        String token = request.getHeader(jwtParams.getTokenHeader());
         if (!StringUtils.isEmpty(token)) {
             try {
-                byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
+                byte[] signingKey = jwtParams.getSecret().getBytes();
 
                 Jws<Claims> parsedToken = Jwts.parser()
                         .setSigningKey(signingKey)
@@ -77,5 +83,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         return null;
+    }
+
+    public void setJwtParams(JwtParams jwtParams) {
+        this.jwtParams = jwtParams;
     }
 }

@@ -83,7 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
               //  .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(getJwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager()))
+                .addFilter(getJwtAuthorizationFilter(authenticationManager()))
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -112,8 +112,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public JwtAuthenticationFilter getJwtAuthenticationFilter(AuthenticationManager authenticationManager){
 
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager);
+            jwtAuthenticationFilter.setJwtParams(jwtParams);
             jwtAuthenticationFilter.setFilterProcessesUrl(jwtParams.getAuthLoginUrl());
             return jwtAuthenticationFilter;
 
     }
+
+    public JwtAuthorizationFilter getJwtAuthorizationFilter(AuthenticationManager authenticationManager){
+
+        JwtAuthorizationFilter filter = new JwtAuthorizationFilter(authenticationManager);
+        filter.setJwtParams(jwtParams);
+        return filter;
+
+    }
+
+
 }
