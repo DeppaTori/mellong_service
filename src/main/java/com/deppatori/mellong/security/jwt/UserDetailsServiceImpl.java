@@ -2,11 +2,13 @@ package com.deppatori.mellong.security.jwt;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import com.deppatori.mellong.model.User;
+import com.deppatori.mellong.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,26 +22,39 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private PasswordEncoder encoder;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        Optional<User> findUser = Optional.of(userService.findByUsernaem(username));
 
-        final List<AppUser> users = Arrays.asList(
-                new AppUser(1, "john", encoder.encode("12345"), "USER"),
-                new AppUser(2, "admin", encoder.encode("12345"), "ADMIN")
-        );
-
-
-        for(AppUser appUser: users) {
-            if(appUser.getUsername().equals(username)) {
-
-               List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+        if(findUser.isPresent()){
+            AppUser appUser = new AppUser(1, findUser.get().getUsername(),findUser.get().getPassword(), "USER");
+                           List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                         .commaSeparatedStringToAuthorityList("ROLE_" + appUser.getRole());
 
 
-                return new User(appUser.getUsername(), appUser.getPassword(), grantedAuthorities);
-            }
+                return new org.springframework.security.core.userdetails.User(appUser.getUsername(), appUser.getPassword(), grantedAuthorities);
         }
+
+//        final List<AppUser> users = Arrays.asList(
+//                new AppUser(1, "john", encoder.encode("12345"), "USER"),
+//                new AppUser(2, "admin", encoder.encode("12345"), "ADMIN")
+//        );
+//
+//
+//        for(AppUser appUser: users) {
+//            if(appUser.getUsername().equals(username)) {
+//
+//               List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+//                        .commaSeparatedStringToAuthorityList("ROLE_" + appUser.getRole());
+//
+//
+//                return new User(appUser.getUsername(), appUser.getPassword(), grantedAuthorities);
+//            }
+//        }
 
 
         throw new UsernameNotFoundException("Username: " + username + " not found");
