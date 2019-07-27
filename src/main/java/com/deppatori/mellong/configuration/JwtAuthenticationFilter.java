@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import sun.security.util.SecurityConstants;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
 
-    //    setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
+      //  setFilterProcessesUrl("/auth/login");
     }
 
     @Override
@@ -65,7 +66,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .claim("rol", roles)
                 .compact();
 
-       // response.addHeader(jwtParams.getTokenHeader(), jwtParams.getTokenPrefix() + token);
+
+
+     //   response.addHeader(jwtParams.getTokenHeader(), jwtParams.getTokenPrefix() + token);
+
         try{
             JSONObject obj = new JSONObject();
             obj.put("token", token);
